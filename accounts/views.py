@@ -84,7 +84,7 @@ def follow_view(request, username):
     if follower == following:
         return HttpResponseBadRequest("You cannot follow yourself")
     else:
-        created = Connection.objects.create(follower=follower, following=following)
+        created = Connection.objects.get_or_create(follower=follower, following=following)
         if created:
             return redirect("tweets:home")
         else:

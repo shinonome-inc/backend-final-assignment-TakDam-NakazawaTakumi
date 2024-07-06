@@ -11,7 +11,7 @@ class Connection(models.Model):
     follower = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name="user",
+        related_name="follower",
         default=None,
     )
     following = models.ForeignKey(User, on_delete=models.CASCADE, related_name="following", default=None)
