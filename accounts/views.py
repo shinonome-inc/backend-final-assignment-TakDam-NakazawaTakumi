@@ -37,7 +37,7 @@ class FollowingListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context = {
-            "following_list": Connection.objects.filter(
+            "following_list": Connection.objects.select_related("following").filter(
                 follower=User.objects.prefetch_related("following").get(username=self.kwargs["username"])
             ),
             "username": self.kwargs["username"],
@@ -53,7 +53,7 @@ class FollowerListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context = {
-            "follower_list": Connection.objects.filter(
+            "follower_list": Connection.objects.select_related("follower").filter(
                 following=User.objects.prefetch_related("follower").get(username=self.kwargs["username"])
             ),
             "username": self.kwargs["username"],
