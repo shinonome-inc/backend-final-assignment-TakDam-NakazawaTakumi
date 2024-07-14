@@ -34,11 +34,10 @@ class FollowingListView(ListView):
     template_name = "accounts/following_list.html"
     context_object_name = "following_list"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_context_data(self):
         context = {
             "following_list": Connection.objects.select_related("following").filter(
-                follower=User.objects.prefetch_related("following").get(username=self.kwargs["username"])
+                follower=User.objects.prefetch_related("followee").get(username=self.kwargs["username"])
             ),
             "username": self.kwargs["username"],
         }
@@ -50,8 +49,7 @@ class FollowerListView(ListView):
     template_name = "accounts/follower_list.html"
     context_object_name = "follower_list"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_context_data(self):
         context = {
             "follower_list": Connection.objects.select_related("follower").filter(
                 following=User.objects.prefetch_related("follower").get(username=self.kwargs["username"])
