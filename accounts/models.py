@@ -14,7 +14,7 @@ class Connection(models.Model):
         related_name="follower",
         default=None,
     )
-    following = models.ForeignKey(User, on_delete=models.CASCADE, related_name="followee", default=None)
+    following = models.ForeignKey(User, on_delete=models.CASCADE, related_name="followee")
     created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
