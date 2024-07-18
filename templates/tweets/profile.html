@@ -5,6 +5,13 @@ UserProfile
 
 {% block content %}
 <h1>This is {{ username }} home!</h1>
+<p>フォロワー数: {{n_follower}}</p>
+<p>フォロー数: {{n_following}}</p>
+<a href="/accounts/{{username}}/follow">フォロー</a>
+<a href="/accounts/{{username}}/unfollow">フォロー解除</a>
+<a href="/accounts/{{username}}/following_list">フォロー一覧</a>
+<a href="/accounts/{{username}}/follower_list">フォロワ一一覧</a>
+
 {% for tweet in tweets_list %}
 <p>
     {{ tweet.user }}<br>
