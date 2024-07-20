@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse_lazy
 
-from .models import Tweet
+from .models import Favorite, Tweet
 
 User = get_user_model()
 
@@ -115,18 +115,65 @@ class TestTweetDeleteView(TestCase):
         self.assertTrue(Tweet.objects.filter(id=self.tweet2.id).exists())
 
 
-# class TestLikeView(TestCase):
-#     def test_success_post(self):
+class TestLikeView(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(
+            username="test_user",
+        )
+        self.user2 = User.objects.create(
+            username="test_user2",
+        )
+        self.client.force_login(self.user)
+        self.tweet = Tweet.objects.create(user=self.user2, title="test_title", content="test_content")
+        self.url = reverse_lazy("tweets:like", kwargs={"pk": str(self.tweet.id)})
+        self.wrongurl = reverse_lazy("tweets:like", kwargs={"pk": "48956984-1c8b-6e38-2d6a-548a6b1c50f0"})
 
-#     def test_failure_post_with_not_exist_tweet(self):
+    def test_success_post(self):
+        response = self.client.post(self.url)
+        expected_url = reverse_lazy("tweets:home")
+        self.assertRedirects(response, expected_url, status_code=302, target_status_code=200)
+        self.assertTrue(Favorite.objects.filter(user=self.user, tweet=self.tweet).exists())
 
-#     def test_failure_post_with_liked_tweet(self):
+    def test_failure_post_with_not_exist_tweet(self):
+        response = self.client.post(self.wrongurl)
+        self.assertEqual(response.status_code, 404)
+        self.assertFalse(Favorite.objects.filter(user=self.user, tweet=self.tweet).exists())
+
+    def test_failure_post_with_liked_tweet(self):
+        self.favorite = Favorite.objects.create(user=self.user, tweet=self.tweet)
+        response = self.client.post(self.url)
+        expected_url = reverse_lazy("tweets:home")
+        self.assertRedirects(response, expected_url, status_code=302, target_status_code=200)
+        self.assertFalse(Favorite.objects.filter(user=self.user, tweet=self.tweet).count() == 2)
 
 
-# class TestUnLikeView(TestCase):
+class TestUnLikeView(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(
+            username="test_user",
+        )
+        self.user2 = User.objects.create(
+            username="test_user2",
+        )
+        self.client.force_login(self.user)
+        self.tweet = Tweet.objects.create(user=self.user2, title="test_title", content="test_content")
+        self.favorite = Favorite.objects.create(user=self.user, tweet=self.tweet)
+        self.url = reverse_lazy("tweets:unlike", kwargs={"pk": str(self.tweet.id)})
+        self.wrongurl = reverse_lazy("tweets:unlike", kwargs={"pk": "48956984-1c8b-6e38-2d6a-548a6b1c50f0"})
 
-#     def test_success_post(self):
+    def test_success_post(self):
+        response = self.client.post(self.url)
+        expected_url = reverse_lazy("tweets:home")
+        self.assertRedirects(response, expected_url, status_code=302, target_status_code=200)
+        self.assertFalse(Favorite.objects.filter(user=self.user, tweet=self.tweet).exists())
 
-#     def test_failure_post_with_not_exist_tweet(self):
+    def test_failure_post_with_not_exist_tweet(self):
+        response = self.client.post(self.wrongurl)
+        self.assertEqual(response.status_code, 404)
+        self.assertTrue(Favorite.objects.filter(user=self.user, tweet=self.tweet).exists())
 
-#     def test_failure_post_with_unliked_tweet(self):
+    def test_failure_post_with_unliked_tweet(self):
+        response = self.client.post(self.url)
+        expected_url = reverse_lazy("tweets:home")
+        self.assertRedirects(response, expected_url, status_code=302, target_status_code=200)
+        self.assertFalse(Favorite.objects.filter(user=self.user, tweet=self.tweet).exists())

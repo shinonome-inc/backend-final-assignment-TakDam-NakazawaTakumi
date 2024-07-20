@@ -13,6 +13,9 @@ Home
     {{ tweet.title }}<br>
     {{ tweet.content}}<br>
     {{ tweet.created_at }}
+    <a>Like:{{ tweet.n_liked }}</a>
+    <a href="/tweets/{{tweet.id}}/like">Like</a>
+    <a href="/tweets/{{tweet.id}}/unlike">Unlike</a>
     <a href="/tweets/{{tweet.id}}">Detail</a>
 </p>
 {% endfor %}

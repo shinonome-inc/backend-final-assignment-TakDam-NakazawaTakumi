@@ -7,7 +7,7 @@ from django.http import HttpResponseBadRequest, HttpResponseNotFound
 from django.shortcuts import redirect, render
 from django.views.generic import CreateView, ListView
 
-from tweets.models import Tweet
+from tweets.models import Favorite, Tweet
 
 from .forms import LoginForm, SignupForm
 from .models import Connection, User
@@ -36,9 +36,10 @@ class FollowingListView(ListView):
 
     def get_context_data(self):
         context = {
-            "following_list": Connection.objects.select_related("following").filter(
-                follower=User.objects.prefetch_related("followee").get(username=self.kwargs["username"])
-            ),
+            "following_list": Connection.objects.select_related("following")
+            .order_by("created_at")
+            .reverse()
+            .filter(follower=User.objects.prefetch_related("followee").get(username=self.kwargs["username"])),
             "username": self.kwargs["username"],
         }
         return context
@@ -51,9 +52,10 @@ class FollowerListView(ListView):
 
     def get_context_data(self):
         context = {
-            "follower_list": Connection.objects.select_related("follower").filter(
-                following=User.objects.prefetch_related("follower").get(username=self.kwargs["username"])
-            ),
+            "follower_list": Connection.objects.select_related("follower")
+            .order_by("created_at")
+            .reverse()
+            .filter(following=User.objects.prefetch_related("follower").get(username=self.kwargs["username"])),
             "username": self.kwargs["username"],
         }
         return context
@@ -63,6 +65,8 @@ class FollowerListView(ListView):
 def userprofile_view(request, username):
     user = User.objects.get(username=username)
     tweets_list = Tweet.objects.select_related("user").filter(user=user)
+    for tweet in tweets_list:
+        tweet.n_liked = Favorite.objects.filter(tweet=tweet).all().count()
     n_follower = Connection.objects.select_related("follower").filter(following=user).all().count()
     n_following = Connection.objects.select_related("following").filter(follower=user).all().count()
     return render(
