@@ -9,7 +9,7 @@ Home
 <h1>This is the home!</h1>
 {% for tweet in tweets_list %}
 <p>
-    {{ tweet.user }}<br>
+    <a href="{% url 'accounts:user_profile' tweet.user.username %}">{{tweet.user}}</a>
     {{ tweet.title }}<br>
     {{ tweet.content}}<br>
     {{ tweet.created_at }}

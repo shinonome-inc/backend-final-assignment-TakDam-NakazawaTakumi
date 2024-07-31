@@ -7,7 +7,7 @@ PostDetail
 <h1>This is Tweet's Detail!</h1>
 {% for tweet in tweets %}
 <p>
-    <li><a href="{% url 'accounts:user_profile' tweet.user.username %}">{{tweet.user}}</a></li>
+    <a href="{% url 'accounts:user_profile' tweet.user.username %}">{{tweet.user}}</a>
     {{ tweet.title }}<br>
     {{ tweet.content}}<br>
     {{ tweet.created_at }}
