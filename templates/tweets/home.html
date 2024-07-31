@@ -9,10 +9,13 @@ Home
 <h1>This is the home!</h1>
 {% for tweet in tweets_list %}
 <p>
-    {{ tweet.user }}<br>
+    <a href="{% url 'accounts:user_profile' tweet.user.username %}">{{tweet.user}}</a>
     {{ tweet.title }}<br>
     {{ tweet.content}}<br>
     {{ tweet.created_at }}
+    <a>Like:{{ tweet.n_liked }}</a>
+    <a href="/tweets/{{tweet.id}}/like">Like</a>
+    <a href="/tweets/{{tweet.id}}/unlike">Unlike</a>
     <a href="/tweets/{{tweet.id}}">Detail</a>
 </p>
 {% endfor %}
