@@ -130,8 +130,7 @@ class TestLikeView(TestCase):
 
     def test_success_post(self):
         response = self.client.post(self.url)
-        expected_url = reverse_lazy("tweets:home")
-        self.assertRedirects(response, expected_url, status_code=302, target_status_code=200)
+        self.assertEqual(response.status_code, 200)
         self.assertTrue(Favorite.objects.filter(user=self.user, tweet=self.tweet).exists())
 
     def test_failure_post_with_not_exist_tweet(self):
@@ -142,8 +141,7 @@ class TestLikeView(TestCase):
     def test_failure_post_with_liked_tweet(self):
         self.favorite = Favorite.objects.create(user=self.user, tweet=self.tweet)
         response = self.client.post(self.url)
-        expected_url = reverse_lazy("tweets:home")
-        self.assertRedirects(response, expected_url, status_code=302, target_status_code=200)
+        self.assertEqual(response.status_code, 200)
         self.assertFalse(Favorite.objects.filter(user=self.user, tweet=self.tweet).count() == 2)
 
 
@@ -163,8 +161,7 @@ class TestUnLikeView(TestCase):
 
     def test_success_post(self):
         response = self.client.post(self.url)
-        expected_url = reverse_lazy("tweets:home")
-        self.assertRedirects(response, expected_url, status_code=302, target_status_code=200)
+        self.assertEqual(response.status_code, 200)
         self.assertFalse(Favorite.objects.filter(user=self.user, tweet=self.tweet).exists())
 
     def test_failure_post_with_not_exist_tweet(self):
@@ -174,6 +171,5 @@ class TestUnLikeView(TestCase):
 
     def test_failure_post_with_unliked_tweet(self):
         response = self.client.post(self.url)
-        expected_url = reverse_lazy("tweets:home")
-        self.assertRedirects(response, expected_url, status_code=302, target_status_code=200)
+        self.assertEqual(response.status_code, 200)
         self.assertFalse(Favorite.objects.filter(user=self.user, tweet=self.tweet).exists())

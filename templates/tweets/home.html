@@ -9,14 +9,64 @@ Home
 <h1>This is the home!</h1>
 {% for tweet in tweets_list %}
 <p>
-    <a href="{% url 'accounts:user_profile' tweet.user.username %}">{{tweet.user}}</a>
+    <a href="{% url 'accounts:user_profile' tweet.user.username %}">{{tweet.user}}</a><br>
     {{ tweet.title }}<br>
     {{ tweet.content}}<br>
     {{ tweet.created_at }}
-    <a>Like:{{ tweet.n_liked }}</a>
-    <a href="/tweets/{{tweet.id}}/like">Like</a>
-    <a href="/tweets/{{tweet.id}}/unlike">Unlike</a>
+    <a>Like: <span id="ajax-like-count-{{tweet.id}}">{{tweet.n_liked }}</span></a>
+    {% if tweet.liked %}
+        <a id="ajax-like-{{tweet.id}}" href="/tweets/{{tweet.id}}/unlike">Unlike</a>
+    {% else %}
+        <a id="ajax-unlike-{{tweet.id}}" href="/tweets/{{tweet.id}}/like">Like</a>
+    {% endif %}
     <a href="/tweets/{{tweet.id}}">Detail</a>
 </p>
 {% endfor %}
+{% endblock %}
+{% block extlascripts %}
+<script type="text/javascript">
+    /* ポストに対するイイね */
+    document.getElementById('ajax-like-{{tweet.id}}').addEventListener('click', e => {
+        e.preventDefault();
+        const url = '/tweets/{{tweet.id}}/like';
+        fetch(url, {
+        method: 'POST',
+        body: `pk={{tweet.id}}`,
+        headers: {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+        'X-CSRFToken': '{{ csrf_token }}',
+        },
+        }).then(response => {
+        return response.json();
+        }).then(response => {
+        // 通信後の処理、とりあえずレスポンスを表示
+        const n_liked = document.getElementById('ajax-like-count-{{tweet.id}}')
+        const like = document.getElementById('ajax-like-{{tweet.id}}')
+        like.innerText = "Unlike"
+        like.id = "ajax-unlike-{{tweet.id}}"
+        n_liked.innerText = response.n_liked;
+        }).catch(error => {
+        });
+        document.getElementById('ajax-unlike-{{tweet.id}}').addEventListener('click', e => {
+            e.preventDefault();
+            const url = '/tweets/{{tweet.id}}/unlike';
+        fetch(url, {
+            method: 'POST',
+            body: `pk={{tweet.id}}`,
+            headers: {
+            'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+            'X-CSRFToken': '{{ csrf_token }}',
+                },
+            }).then(response => {
+            return response.json();
+            }).then(response => {
+            const n_liked = document.getElementById('ajax-like-count-{{tweet.id}}')
+            n_liked.innerText = response.n_liked;
+            const like = document.getElementById('ajax-unlike-{{tweet.id}}')
+            like.innerText = "Like"
+            like.id = "ajax-like-{{tweet.id}}"
+            }).catch(error => {
+        });
+    });
+</script>
 {% endblock %}

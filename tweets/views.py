@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseForbidden, HttpResponseNotFound
+from django.http import HttpResponseForbidden, HttpResponseNotFound, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -17,6 +17,10 @@ def home_view(request):
     tweets_list = Tweet.objects.select_related("user").all()
     for tweet in tweets_list:
         tweet.n_liked = Favorite.objects.filter(tweet=tweet).all().count()
+        if Favorite.objects.filter(user=request.user, tweet=tweet).exists():
+            tweet.liked = True
+        else:
+            tweet.liked = False
     context = {"tweets_list": tweets_list}
     return render(request, "tweets/home.html", context)
 
@@ -59,7 +63,12 @@ def like_view(request, pk):
         return HttpResponseNotFound("Tweet does not exist")
     else:
         _, created = Favorite.objects.get_or_create(user=user, tweet=tweet)
-        return redirect("tweets:home")
+        context = {
+            "id": pk,
+            "liked": True,
+            "n_liked": Favorite.objects.filter(tweet=tweet).all().count(),
+        }
+        return JsonResponse(context)
 
 
 @login_required
@@ -73,4 +82,9 @@ def unlike_view(request, pk):
         return redirect("tweets:home")
     else:
         Favorite.objects.filter(user=user, tweet=tweet).delete()
-        return redirect("tweets:home")
+        context = {
+            "id": pk,
+            "liked": False,
+            "n_liked": Favorite.objects.filter(tweet=tweet).all().count(),
+        }
+        return JsonResponse(context)
