@@ -13,20 +13,21 @@ Home
     {{ tweet.title }}<br>
     {{ tweet.content}}<br>
     {{ tweet.created_at }}
-    <a>Like: <span id="ajax-like-count-{{tweet.id}}">{{tweet.n_liked }}</span></a>
+    <a>Like: <span id="ajax-like-count-{{tweet.number}}">{{tweet.n_liked }}</span></a>
     {% if tweet.liked %}
-        <a id="ajax-like-{{tweet.id}}" href="/tweets/{{tweet.id}}/unlike">Unlike</a>
+        <button id="ajax-like-{{tweet.number}}">Unlike</button>
     {% else %}
-        <a id="ajax-unlike-{{tweet.id}}" href="/tweets/{{tweet.id}}/like">Like</a>
+        <button id="ajax-unlike-{{tweet.number}}">Like</button>
     {% endif %}
-    <a href="/tweets/{{tweet.id}}">Detail</a>
+    <a href="/tweets/{{tweet.number}}">Detail</a>
 </p>
 {% endfor %}
 {% endblock %}
 {% block extlascripts %}
 <script type="text/javascript">
     /* ポストに対するイイね */
-    document.getElementById('ajax-like-{{tweet.id}}').addEventListener('click', e => {
+    for (let i = 1; i <= {{tweets_number}}; i++) {
+        document.getElementById('ajax-like-'+String(i)).addEventListener('click', e => {
         e.preventDefault();
         const url = '/tweets/{{tweet.id}}/like';
         fetch(url, {
@@ -39,34 +40,37 @@ Home
         }).then(response => {
         return response.json();
         }).then(response => {
-        // 通信後の処理、とりあえずレスポンスを表示
-        const n_liked = document.getElementById('ajax-like-count-{{tweet.id}}')
-        const like = document.getElementById('ajax-like-{{tweet.id}}')
+        console.log(response)
+            const n_liked = document.getElementById('ajax-like-count-'+String(i))
+        const like = document.getElementById('ajax-like-'+String(i))
         like.innerText = "Unlike"
-        like.id = "ajax-unlike-{{tweet.id}}"
+        like.id = "ajax-unlike-"+String(i)
         n_liked.innerText = response.n_liked;
         }).catch(error => {
         });
-        document.getElementById('ajax-unlike-{{tweet.id}}').addEventListener('click', e => {
+        document.getElementById('ajax-unlike-'+String(i)).addEventListener('click', e => {
             e.preventDefault();
             const url = '/tweets/{{tweet.id}}/unlike';
         fetch(url, {
             method: 'POST',
             body: `pk={{tweet.id}}`,
-            headers: {
-            'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
-            'X-CSRFToken': '{{ csrf_token }}',
+                headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+                'X-CSRFToken': '{{ csrf_token }}',
                 },
             }).then(response => {
             return response.json();
             }).then(response => {
-            const n_liked = document.getElementById('ajax-like-count-{{tweet.id}}')
+            console.log(response)
+            const n_liked = document.getElementById('ajax-like-count-'+String(i))
             n_liked.innerText = response.n_liked;
-            const like = document.getElementById('ajax-unlike-{{tweet.id}}')
+            const like = document.getElementById('ajax-unlike-'+String(i))
             like.innerText = "Like"
-            like.id = "ajax-like-{{tweet.id}}"
+            like.id = "ajax-like-"+String(i)
             }).catch(error => {
+            });
+            });
         });
-    });
+    }
 </script>
 {% endblock %}

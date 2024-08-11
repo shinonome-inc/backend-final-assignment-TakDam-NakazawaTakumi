@@ -15,13 +15,17 @@ from .models import Favorite, Tweet
 @login_required
 def home_view(request):
     tweets_list = Tweet.objects.select_related("user").all()
+    i=0
     for tweet in tweets_list:
         tweet.n_liked = Favorite.objects.filter(tweet=tweet).all().count()
+        tweet.number =  i + 1
+        i += 1
         if Favorite.objects.filter(user=request.user, tweet=tweet).exists():
             tweet.liked = True
         else:
             tweet.liked = False
-    context = {"tweets_list": tweets_list}
+    tweets_number = tweets_list.count()
+    context = {"tweets_list": tweets_list, "tweets_number": tweets_number}
     return render(request, "tweets/home.html", context)
 
 
