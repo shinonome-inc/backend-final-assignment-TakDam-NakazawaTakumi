@@ -7,6 +7,7 @@ Home
 {% block content %}
 
 <h1>This is the home!</h1>
+Tweet_number:{{tweets_number}}
 {% for tweet in tweets_list %}
 <p>
     <a href="{% url 'accounts:user_profile' tweet.user.username %}">{{tweet.user}}</a><br>
@@ -15,62 +16,41 @@ Home
     {{ tweet.created_at }}
     <a>Like: <span id="ajax-like-count-{{tweet.number}}">{{tweet.n_liked }}</span></a>
     {% if tweet.liked %}
-        <button id="ajax-like-{{tweet.number}}">Unlike</button>
+        <button id="ajax-unlike-{{tweet.number}}">Unlike</button>
     {% else %}
-        <button id="ajax-unlike-{{tweet.number}}">Like</button>
+        <button id="ajax-like-{{tweet.number}}">Like</button>
     {% endif %}
     <a href="/tweets/{{tweet.number}}">Detail</a>
 </p>
 {% endfor %}
 {% endblock %}
 {% block extlascripts %}
-<script type="text/javascript">
-    /* ポストに対するイイね */
-    for (let i = 1; i <= {{tweets_number}}; i++) {
-        document.getElementById('ajax-like-'+String(i)).addEventListener('click', e => {
+<script>
+{% for tweet in tweets_list %}
+    p=document.getElementById(`ajax-like-{{tweet.number}}`)
+    console.log(p)
+    p.addEventListener("click",e=>{
         e.preventDefault();
-        const url = '/tweets/{{tweet.id}}/like';
-        fetch(url, {
-        method: 'POST',
-        body: `pk={{tweet.id}}`,
-        headers: {
-        'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
-        'X-CSRFToken': '{{ csrf_token }}',
-        },
-        }).then(response => {
-        return response.json();
-        }).then(response => {
-        console.log(response)
-            const n_liked = document.getElementById('ajax-like-count-'+String(i))
-        const like = document.getElementById('ajax-like-'+String(i))
-        like.innerText = "Unlike"
-        like.id = "ajax-unlike-"+String(i)
-        n_liked.innerText = response.n_liked;
-        }).catch(error => {
-        });
-        document.getElementById('ajax-unlike-'+String(i)).addEventListener('click', e => {
-            e.preventDefault();
-            const url = '/tweets/{{tweet.id}}/unlike';
-        fetch(url, {
-            method: 'POST',
-            body: `pk={{tweet.id}}`,
-                headers: {
-                'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
-                'X-CSRFToken': '{{ csrf_token }}',
-                },
-            }).then(response => {
-            return response.json();
-            }).then(response => {
-            console.log(response)
-            const n_liked = document.getElementById('ajax-like-count-'+String(i))
-            n_liked.innerText = response.n_liked;
-            const like = document.getElementById('ajax-unlike-'+String(i))
-            like.innerText = "Like"
-            like.id = "ajax-like-"+String(i)
-            }).catch(error => {
-            });
-            });
-        });
-    }
+        const url = `/tweets/{{tweet.id}}/like`;
+        fetch(
+            url,{
+                method:"POST",
+                body:`pk={{tweet.id}}`,
+                headers:{
+                    'Content-Type':'application/x-www-form-urlencoded; charset=utf-8',
+                    'X-CSRFToken':"{{ csrf_token }}"
+                }
+                }
+        ).then(
+            response=>{
+                return response.json();
+            }
+        ).then(
+            response=>{
+                console.log(response);
+            }
+        );
+    });
+{% endfor %}
 </script>
 {% endblock %}

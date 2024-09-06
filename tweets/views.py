@@ -15,10 +15,10 @@ from .models import Favorite, Tweet
 @login_required
 def home_view(request):
     tweets_list = Tweet.objects.select_related("user").all()
-    i=0
+    i = 0
     for tweet in tweets_list:
         tweet.n_liked = Favorite.objects.filter(tweet=tweet).all().count()
-        tweet.number =  i + 1
+        tweet.number = i + 1
         i += 1
         if Favorite.objects.filter(user=request.user, tweet=tweet).exists():
             tweet.liked = True
