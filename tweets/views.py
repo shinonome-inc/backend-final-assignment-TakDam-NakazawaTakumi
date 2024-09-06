@@ -32,8 +32,12 @@ def home_view(request):
 @login_required
 def tweetdetail_view(request, pk):
     tweets = Tweet.objects.select_related("user").filter(id=pk)
+    if Favorite.objects.filter(user=request.user, tweet=tweets[0]).exists():
+        liked = True
+    else:
+        liked = False
     n_liked = Favorite.objects.filter(tweet=tweets[0]).all().count()
-    return render(request, "tweets/detail.html", {"tweets": tweets, "n_liked": n_liked})
+    return render(request, "tweets/detail.html", {"tweets": tweets, "liked": liked, "n_liked": n_liked})
 
 
 @login_required
