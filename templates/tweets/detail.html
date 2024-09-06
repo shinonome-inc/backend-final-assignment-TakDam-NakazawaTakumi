@@ -17,6 +17,9 @@ PostDetail
     {% else %}
         <button id="ajax-like-0" data-url='/tweets/{{tweet.id}}/like/'>Like</button>
     {% endif %}
+    {% if tweet.user == request.user %}
+    <a href="/tweets/{{tweet.id}}/delete">delete</a>
+    {% endif %}
 </p>
 {% endfor %}
 {% endblock %}
