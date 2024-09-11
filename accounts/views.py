@@ -65,16 +65,18 @@ class FollowerListView(ListView):
 def userprofile_view(request, username):
     user = User.objects.get(username=username)
     tweets_list = Tweet.objects.select_related("user").filter(user=user)
-    Favorites = Favorite.objects
+    favorites = Favorite.objects.all().select_related("user").select_related("tweet")
     i = 0
     for tweet in tweets_list:
-        if Favorites.filter(user=request.user, tweet=tweet).exists():
-            tweet.liked = True
-        else:
-            tweet.liked = False
         tweet.n_liked = Favorite.objects.filter(tweet=tweet).all().count()
         tweet.index = i + 1
         i += 1
+        for favorite in favorites:
+            if favorite.user == request.user:
+                tweet.liked = True
+                break
+            else:
+                tweet.liked = False
     n_follower = Connection.objects.select_related("follower").filter(following=user).all().count()
     n_following = Connection.objects.select_related("following").filter(follower=user).all().count()
     return render(

@@ -15,18 +15,20 @@ from .models import Favorite, Tweet
 @login_required
 def home_view(request):
     tweets = Tweet.objects.select_related("user")
-    Favorites = Favorite.objects.select_related("user")
+    favorites = Favorite.objects.all().select_related("tweet").select_related("user")
     tweets_list = tweets.all()
+    tweets_count = tweets_list.count()
     i = 0
     for tweet in tweets_list:
-        tweet.n_liked = Favorites.all().count()
+        tweet.n_liked = favorites.filter(tweet=tweet).prefetch_related("tweet").count()
         tweet.index = i + 1
         i += 1
-        if Favorites.filter(user=request.user, tweet=tweet).exists():
-            tweet.liked = True
-        else:
-            tweet.liked = False
-    tweets_count = tweets_list.count()
+        for favorite in favorites:
+            if favorite.user == request.user and favorite.tweet == tweet:
+                tweet.liked = True
+                break
+            else:
+                tweet.liked = False
     context = {"tweets_list": tweets_list, "tweets_count": tweets_count}
     return render(request, "tweets/home.html", context)
 
