@@ -14,13 +14,15 @@ from .models import Favorite, Tweet
 
 @login_required
 def home_view(request):
-    tweets_list = Tweet.objects.select_related("user").all()
+    tweets = Tweet.objects.select_related("user")
+    Favorites = Favorite.objects.select_related("user")
+    tweets_list = tweets.all()
     i = 0
     for tweet in tweets_list:
-        tweet.n_liked = Favorite.objects.filter(tweet=tweet).all().count()
+        tweet.n_liked = Favorites.all().count()
         tweet.index = i + 1
         i += 1
-        if Favorite.objects.filter(user=request.user, tweet=tweet).exists():
+        if Favorites.filter(user=request.user, tweet=tweet).exists():
             tweet.liked = True
         else:
             tweet.liked = False
