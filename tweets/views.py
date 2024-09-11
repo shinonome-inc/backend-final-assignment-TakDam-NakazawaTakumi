@@ -18,14 +18,14 @@ def home_view(request):
     i = 0
     for tweet in tweets_list:
         tweet.n_liked = Favorite.objects.filter(tweet=tweet).all().count()
-        tweet.number = i + 1
+        tweet.index = i + 1
         i += 1
         if Favorite.objects.filter(user=request.user, tweet=tweet).exists():
             tweet.liked = True
         else:
             tweet.liked = False
-    tweets_number = tweets_list.count()
-    context = {"tweets_list": tweets_list, "tweets_number": tweets_number}
+    tweets_count = tweets_list.count()
+    context = {"tweets_list": tweets_list, "tweets_count": tweets_count}
     return render(request, "tweets/home.html", context)
 
 
@@ -70,7 +70,7 @@ def like_view(request, pk):
     except Tweet.DoesNotExist:
         return HttpResponseNotFound("Tweet does not exist")
     else:
-        _, created = Favorite.objects.get_or_create(user=user, tweet=tweet)
+        Favorite.objects.get_or_create(user=user, tweet=tweet)
         context = {
             "id": pk,
             "liked": True,

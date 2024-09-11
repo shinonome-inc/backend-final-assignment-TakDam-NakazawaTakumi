@@ -91,8 +91,10 @@ class TestTweetDeleteView(TestCase):
             username="test_user2",
         )
         self.client.force_login(self.user)
-        self.tweet = Tweet.objects.create(user=self.user, title="test_title", content="test_content")
-        self.tweet2 = Tweet.objects.create(user=self.user2, title="test_title2", content="test_content2")
+        tweetId = "48956984-1c8b-6e38-2d6a-548a6b1c50f1"
+        tweet2Id = "48956984-1c8b-6e38-2d6a-548a6b1c50f2"
+        self.tweet = Tweet.objects.create(id=tweetId, user=self.user, title="test_title", content="test_content")
+        self.tweet2 = Tweet.objects.create(id=tweet2Id, user=self.user2, title="test_title2", content="test_content2")
         self.wrongid = "48956984-1c8b-6e38-2d6a-548a6b1c50f0"
         self.url = reverse_lazy("tweets:delete", kwargs={"pk": str(self.tweet.id)})
         self.othersurl = reverse_lazy("tweets:delete", kwargs={"pk": str(self.tweet2.id)})
@@ -124,9 +126,11 @@ class TestLikeView(TestCase):
             username="test_user2",
         )
         self.client.force_login(self.user)
-        self.tweet = Tweet.objects.create(user=self.user2, title="test_title", content="test_content")
+        tweetId = "48956984-1c8b-6e38-2d6a-548a6b1c50f1"
+        self.tweet = Tweet.objects.create(id=tweetId, user=self.user2, title="test_title", content="test_content")
+        self.wrongid = "48956984-1c8b-6e38-2d6a-548a6b1c50f0"
         self.url = reverse_lazy("tweets:like", kwargs={"pk": str(self.tweet.id)})
-        self.wrongurl = reverse_lazy("tweets:like", kwargs={"pk": "48956984-1c8b-6e38-2d6a-548a6b1c50f0"})
+        self.wrongurl = reverse_lazy("tweets:like", kwargs={"pk": self.wrongid})
 
     def test_success_post(self):
         response = self.client.post(self.url)
@@ -154,10 +158,12 @@ class TestUnLikeView(TestCase):
             username="test_user2",
         )
         self.client.force_login(self.user)
-        self.tweet = Tweet.objects.create(user=self.user2, title="test_title", content="test_content")
+        tweetId = "48956984-1c8b-6e38-2d6a-548a6b1c50f1"
+        self.tweet = Tweet.objects.create(id=tweetId, user=self.user2, title="test_title", content="test_content")
         self.favorite = Favorite.objects.create(user=self.user, tweet=self.tweet)
+        self.wrongid = "48956984-1c8b-6e38-2d6a-548a6b1c50f0"
         self.url = reverse_lazy("tweets:unlike", kwargs={"pk": str(self.tweet.id)})
-        self.wrongurl = reverse_lazy("tweets:unlike", kwargs={"pk": "48956984-1c8b-6e38-2d6a-548a6b1c50f0"})
+        self.wrongurl = reverse_lazy("tweets:unlike", kwargs={"pk": self.wrongid})
 
     def test_success_post(self):
         response = self.client.post(self.url)

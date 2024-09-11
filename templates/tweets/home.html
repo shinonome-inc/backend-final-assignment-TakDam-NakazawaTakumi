@@ -7,18 +7,18 @@ Home
 {% block content %}
 
 <h1>This is the home!</h1>
-Tweet_number:{{tweets_number}}
+Tweet_number:{{tweets_count}}
 {% for tweet in tweets_list %}
 <p>
     <a href="{% url 'accounts:user_profile' tweet.user.username %}">{{tweet.user}}</a><br>
     {{ tweet.title }}<br>
     {{ tweet.content}}<br>
     {{ tweet.created_at }}
-    <a>Like: <span id="ajax-like-count-{{tweet.number}}">{{tweet.n_liked }}</span></a>
+    <a>Like: <span id="ajax-like-count-{{tweet.index}}">{{tweet.n_liked }}</span></a>
     {% if tweet.liked %}
-        <button id="ajax-like-{{tweet.number}}" data-url='/tweets/{{tweet.id}}/unlike/'>UnLike</button>
+        <button id="ajax-like-{{tweet.index}}" data-url='/tweets/{{tweet.id}}/unlike/'>UnLike</button>
     {% else %}
-        <button id="ajax-like-{{tweet.number}}" data-url='/tweets/{{tweet.id}}/like/'>Like</button>
+        <button id="ajax-like-{{tweet.index}}" data-url='/tweets/{{tweet.id}}/like/'>Like</button>
     {% endif %}
     <a href="/tweets/{{tweet.id}}">Detail</a>
 </p>
@@ -27,9 +27,9 @@ Tweet_number:{{tweets_number}}
 {% block extlascripts %}
 <script>
     {% for tweet in tweets_list %}
-        document.getElementById(`ajax-like-{{tweet.number}}`).addEventListener("click",e=>{
+        document.getElementById(`ajax-like-{{tweet.index}}`).addEventListener("click",e=>{
         e.preventDefault();
-        const url = document.getElementById(`ajax-like-{{tweet.number}}`).dataset.url;
+        const url = document.getElementById(`ajax-like-{{tweet.index}}`).dataset.url;
         fetch(
             url,{
                 method:"POST",
@@ -46,16 +46,16 @@ Tweet_number:{{tweets_number}}
         ).then(
             response=>{
             console.log(response)
-            count = document.getElementById(`ajax-like-count-{{tweet.number}}`);
+            count = document.getElementById(`ajax-like-count-{{tweet.index}}`);
             console.log(count)
             count.textContent = response.n_liked;
             console.log('not error')
             if (response.liked == true){
-                document.getElementById(`ajax-like-{{tweet.number}}`).textContent = 'UnLike';
-                document.getElementById(`ajax-like-{{tweet.number}}`).dataset.url ='/tweets/{{tweet.id}}/unlike/'
+                document.getElementById(`ajax-like-{{tweet.index}}`).textContent = 'UnLike';
+                document.getElementById(`ajax-like-{{tweet.index}}`).dataset.url ='/tweets/{{tweet.id}}/unlike/'
             }else{
-                document.getElementById(`ajax-like-{{tweet.number}}`).textContent = 'Like';
-                document.getElementById(`ajax-like-{{tweet.number}}`).dataset.url ='/tweets/{{tweet.id}}/like/'
+                document.getElementById(`ajax-like-{{tweet.index}}`).textContent = 'Like';
+                document.getElementById(`ajax-like-{{tweet.index}}`).dataset.url ='/tweets/{{tweet.id}}/like/'
             }
         }
         );

@@ -72,7 +72,7 @@ def userprofile_view(request, username):
         else:
             tweet.liked = False
         tweet.n_liked = Favorite.objects.filter(tweet=tweet).all().count()
-        tweet.number = i + 1
+        tweet.index = i + 1
         i += 1
     n_follower = Connection.objects.select_related("follower").filter(following=user).all().count()
     n_following = Connection.objects.select_related("following").filter(follower=user).all().count()
