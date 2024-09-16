@@ -14,7 +14,7 @@ Tweet_number:{{tweets_count}}
     {{ tweet.title }}<br>
     {{ tweet.content}}<br>
     {{ tweet.created_at }}
-    <a>Like: <span id="ajax-like-count-{{tweet.index}}">{{tweet.n_liked }}</span></a>
+    <a>Like: <span id="ajax-like-count-{{tweet.index}}">{{tweet.tweet_liked.count }}</span></a>
     {% if tweet.liked %}
         <button id="ajax-like-{{tweet.index}}" data-url='/tweets/{{tweet.id}}/unlike/'>UnLike</button>
     {% else %}

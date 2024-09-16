@@ -18,8 +18,8 @@ class Tweet(models.Model):
 
 
 class Favorite(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="user", default="")
-    tweet = models.ForeignKey(Tweet, related_name="tweet", on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="user_liked", default="")
+    tweet = models.ForeignKey(Tweet, related_name="tweet_liked", on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(default=timezone.now)
 

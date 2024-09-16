@@ -68,7 +68,6 @@ def userprofile_view(request, username):
     favorites = Favorite.objects.all().select_related("user").select_related("tweet")
     i = 0
     for tweet in tweets_list:
-        tweet.n_liked = Favorite.objects.filter(tweet=tweet).all().count()
         tweet.index = i + 1
         i += 1
         for favorite in favorites:

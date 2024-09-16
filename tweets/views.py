@@ -14,13 +14,12 @@ from .models import Favorite, Tweet
 
 @login_required
 def home_view(request):
-    tweets = Tweet.objects.select_related("user")
-    favorites = Favorite.objects.all().select_related("tweet").select_related("user")
+    tweets = Tweet.objects.all().select_related("user")
+    favorites = Favorite.objects.all().prefetch_related("tweet").prefetch_related("user")
     tweets_list = tweets.all()
     tweets_count = tweets_list.count()
     i = 0
     for tweet in tweets_list:
-        tweet.n_liked = favorites.filter(tweet=tweet).prefetch_related("tweet").count()
         tweet.index = i + 1
         i += 1
         for favorite in favorites:
@@ -40,8 +39,7 @@ def tweetdetail_view(request, pk):
         liked = True
     else:
         liked = False
-    n_liked = Favorite.objects.filter(tweet=tweets[0]).all().count()
-    return render(request, "tweets/detail.html", {"tweets": tweets, "liked": liked, "n_liked": n_liked})
+    return render(request, "tweets/detail.html", {"tweets": tweets, "liked": liked})
 
 
 @login_required
