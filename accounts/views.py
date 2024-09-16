@@ -64,25 +64,18 @@ class FollowerListView(ListView):
 @login_required
 def userprofile_view(request, username):
     user = User.objects.get(username=username)
-    tweets_list = Tweet.objects.select_related("user").filter(user=user)
-    favorites = Favorite.objects.all().select_related("user").select_related("tweet")
-    i = 0
-    for tweet in tweets_list:
-        tweet.index = i + 1
-        i += 1
-        for favorite in favorites:
-            if favorite.user == request.user:
-                tweet.liked = True
-                break
-            else:
-                tweet.liked = False
+    tweets_list = Tweet.objects.prefetch_related("user").filter(user=user)
+    tweets_liked = Favorite.objects.filter(user=request.user).values_list("tweet_id", flat=True)
     n_follower = Connection.objects.select_related("follower").filter(following=user).all().count()
     n_following = Connection.objects.select_related("following").filter(follower=user).all().count()
-    return render(
-        request,
-        "tweets/profile.html",
-        {"username": username, "tweets_list": tweets_list, "n_follower": n_follower, "n_following": n_following},
-    )
+    context = {
+        "username": username,
+        "tweets_list": tweets_list,
+        "tweets_liked": tweets_liked,
+        "n_follower": n_follower,
+        "n_following": n_following,
+    }
+    return render(request, "tweets/profile.html", context)
 
 
 @login_required

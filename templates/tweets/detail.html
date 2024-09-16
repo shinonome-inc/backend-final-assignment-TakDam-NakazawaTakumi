@@ -12,7 +12,7 @@ PostDetail
     {{ tweet.content}}<br>
     {{ tweet.created_at }}
     <a>Like: <span id="ajax-like-count-0">{{tweet.tweet_liked.count }}</span></a>
-    {% if liked %}
+    {% if tweet.id in tweets_liked %}
         <button id="ajax-like-0" data-url='/tweets/{{tweet.id}}/unlike/'>UnLike</button>
     {% else %}
         <button id="ajax-like-0" data-url='/tweets/{{tweet.id}}/like/'>Like</button>
