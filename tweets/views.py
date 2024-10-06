@@ -14,7 +14,7 @@ from .models import Favorite, Tweet
 
 @login_required
 def home_view(request):
-    tweets = Tweet.objects.all().select_related("user")
+    tweets = Tweet.objects.select_related("user").prefetch_related("tweet_liked")
     tweets_list = tweets.all()
     tweets_count = tweets_list.count()
     tweets_liked = Favorite.objects.filter(user=request.user).values_list("tweet_id", flat=True)

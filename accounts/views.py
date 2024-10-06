@@ -64,7 +64,7 @@ class FollowerListView(ListView):
 @login_required
 def userprofile_view(request, username):
     user = User.objects.get(username=username)
-    tweets_list = Tweet.objects.prefetch_related("user").filter(user=user)
+    tweets_list = Tweet.objects.select_related("user").prefetch_related("tweet_liked").filter(user=user)
     tweets_liked = Favorite.objects.filter(user=request.user).values_list("tweet_id", flat=True)
     n_follower = Connection.objects.select_related("follower").filter(following=user).all().count()
     n_following = Connection.objects.select_related("following").filter(follower=user).all().count()
