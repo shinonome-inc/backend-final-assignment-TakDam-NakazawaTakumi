@@ -12,16 +12,62 @@ UserProfile
 <a href="/accounts/{{username}}/following_list">フォロー一覧</a>
 <a href="/accounts/{{username}}/follower_list">フォロワ一一覧</a>
 
+
 {% for tweet in tweets_list %}
 <p>
-    {{ tweet.user }}<br>
     {{ tweet.title }}<br>
     {{ tweet.content}}<br>
-    {{ tweet.created_at}}
+    {{ tweet.created_at }}
+    <a>Like: <span id="ajax-like-count-{{tweet.id}}">{{tweet.tweet_liked.count }}</span></a>
+    {% if tweet.id in tweets_liked %}
+        <button id="ajax-like-{{tweet.id}}" data-url='/tweets/{{tweet.id}}/unlike/'>UnLike</button>
+    {% else %}
+        <button id="ajax-like-{{tweet.id}}" data-url='/tweets/{{tweet.id}}/like/'>Like</button>
+    {% endif %}
     <a href="/tweets/{{tweet.id}}">Detail</a>
     {% if tweet.user == request.user %}
     <a href="/tweets/{{tweet.id}}/delete">delete</a>
     {% endif %}
 </p>
 {% endfor %}
+{% endblock %}
+{% block extlascripts %}
+<script>
+    {% for tweet in tweets_list %}
+        document.getElementById(`ajax-like-{{tweet.id}}`).addEventListener("click",e=>{
+        e.preventDefault();
+        const url = document.getElementById(`ajax-like-{{tweet.id}}`).dataset.url;
+        fetch(
+            url,{
+                method:"POST",
+                body:`pk={{tweet.id}}`,
+                headers:{
+                    'Content-Type':'application/x-www-form-urlencoded; charset=utf-8',
+                    'X-CSRFToken':`{{ csrf_token }}`
+                }
+                }
+        ).then(
+            response=>{
+                return response.json();
+            }
+        ).then(
+            response=>{
+            console.log(response)
+            count = document.getElementById(`ajax-like-count-{{tweet.id}}`);
+            console.log(count)
+            count.textContent = response.n_liked;
+            console.log('not error')
+            if (response.liked == true){
+                document.getElementById(`ajax-like-{{tweet.id}}`).textContent = 'UnLike';
+                document.getElementById(`ajax-like-{{tweet.id}}`).dataset.url ='/tweets/{{tweet.id}}/unlike/'
+            }else{
+                document.getElementById(`ajax-like-{{tweet.id}}`).textContent = 'Like';
+                document.getElementById(`ajax-like-{{tweet.id}}`).dataset.url ='/tweets/{{tweet.id}}/like/'
+            }
+        }
+        );
+    });
+{% endfor %}
+
+</script>
 {% endblock %}
